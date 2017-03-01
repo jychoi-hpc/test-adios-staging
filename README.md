@@ -9,8 +9,8 @@ adios_icee can work in two mode:
 
 We can use staging methods in between: DATASPACES, DIMES, and FLEXPATH
 
-Build
------
+Building
+--------
 
 Adios needs to be configured and built with the following staging options:
 ```
@@ -28,8 +28,8 @@ Then, this test program can be built by:
 $ make
 ```
 
-Run
----
+Running
+-------
 
 ### 0. With files
 
@@ -101,8 +101,8 @@ Also, we need at least 3 nodes to run this example.
                     -n 4 adios_icee -c -r FLEXPATH
 ```
 
-Check
------
+Checking
+--------
 
 You can see the output from the reader something like:
 ```
@@ -116,6 +116,5 @@ You can see the output from the reader something like:
 ```
 
 In this specific example, the last values (marked as ```^^^^^^```)
-should be multiple of 1 (more precisely, it should be rank + timesteps
-+ 1)
+should be multiple of 1 (more precisely, it should be rank + timesteps + 1)
 
