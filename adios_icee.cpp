@@ -218,6 +218,32 @@ void do_write_1var(const char* fname, const char* amode, const char* vname,
     *t0 = t1;
 }
 
+void do_read(ADIOS_FILE *f, ADIOS_VARINFO * v, uint64_t NX, uint64_t *start, uint64_t *count, int current_step,
+             ATYPE *data, double* icee_deltat, double *t0, double* t1)
+{
+    ADIOS_SELECTION * sel;
+
+    if (NX>0) sel = adios_selection_boundingbox (v->ndim, start, count);
+  
+    //MPI_Barrier(comm);
+    *t0 = MPI_Wtime();
+    
+    if (NX>0) adios_schedule_read_byid (f, sel, v->varid, current_step, 1, data);
+#ifdef ICEE
+    adios_schedule_read (f, NULL, "__icee_deltat__", current_step, 1, icee_deltat);
+#else
+    *icee_deltat = 0.0;
+#endif
+    adios_perform_reads (f, 1);
+    //printf("icee_deltat=%g\n", icee_deltat);
+  
+    //MPI_Barrier(comm);
+    *t1 = MPI_Wtime();
+  
+    adios_release_step (f);
+    if (NX>0) adios_selection_delete(sel);  
+}
+
 int main_leaf (int argc, char ** argv, MPI_Comm world_comm)
 {
     printf("argc: %d\n", argc);
@@ -497,7 +523,7 @@ int main_leaf (int argc, char ** argv, MPI_Comm world_comm)
         ADIOS_FILE * f;
         ADIOS_VARINFO * v;
         ADIOS_SELECTION * sel;
-        ADIOS_SELECTION * sel1;
+        //ADIOS_SELECTION * sel1;
         int err;
 
         ATYPE *data = NULL;
@@ -628,6 +654,10 @@ int main_leaf (int argc, char ** argv, MPI_Comm world_comm)
                         start[0] = O;
                         count[0] = NX;
                     }
+                    double t0=0.0, t1= 0.0, t10=0.0;
+                    do_read(f, v, NX, start, count, current_step, data, &icee_deltat, &t0, &t1);
+                    t10 = t1 - t0;
+                    /*
                     if (NX>0) sel = adios_selection_boundingbox (v->ndim, start, count);
                     sel1 = adios_selection_boundingbox (1, start1, count1);
 
@@ -646,6 +676,7 @@ int main_leaf (int argc, char ** argv, MPI_Comm world_comm)
                     adios_release_step (f);
                     if (NX>0) adios_selection_delete(sel);
                     adios_selection_delete(sel1);
+                    */
 
                     if (use_lock && (rank == 0) && !(args_info.evilread_flag))
                     {

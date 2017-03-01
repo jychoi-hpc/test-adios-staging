@@ -1,3 +1,4 @@
+VT = n
 CC = mpicc
 CXX = mpicxx
 CFLAGS = -g -DVERSION=$(shell git describe --abbrev=7 --dirty --always --tags) -fPIC
@@ -33,35 +34,44 @@ ifneq (,$(findstring sith, $(SYSTEMS)))
   LDFLAGS += -Wl,--allow-multiple-definition
 endif
 
+VT_CC = ${CC}
+VT_CXX = ${CXX}
+EXE = adios_icee
+ifeq ($(VT),y)
+  VT_CC = scorep ${CC}
+  VT_CXX = scorep ${CXX}
+  EXE = adios_icee+sp
+endif
+
 .PHONE: all clean ggo
 
-all: adios_icee
+all: $(EXE)
 
 .c.o:
-	$(CC) $(CFLAGS) $(INCS) -c $<
+	$(VT_CC) $(CFLAGS) $(INCS) -c $<
 
 .cpp.o:
-	$(CXX) $(CFLAGS) $(INCS) -c $<
+	$(VT_CXX) $(CFLAGS) $(INCS) -c $<
 
 .cxx.o:
-	$(CXX) $(CFLAGS) $(INCS) -c $<
+	$(VT_CXX) $(CFLAGS) $(INCS) -c $<
 
 adios_write: adios_write.cpp
-	$(CXX) $(CFLAGS) $(INCS) -o $@ $^ $(LIBS)
+	$(VT_CXX) $(CFLAGS) $(INCS) -o $@ $^ $(LIBS)
 
 adios_read: adios_read.cpp icee_cmdline.c
-	$(CXX) $(CFLAGS) $(INCS) -o $@ $^ $(LIBS)
+	$(VT_CXX) $(CFLAGS) $(INCS) -o $@ $^ $(LIBS)
 
-adios_icee: adios_icee.o icee_cmdline.o filelock.o
-	$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
+$(EXE): adios_icee.o icee_cmdline.o filelock.o
+	$(VT_CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 lib: adios_icee.o filelock.o icee_cmdline.o
 	swig -c++ adios_icee.i
-	$(CXX) -c -fPIC $(TCL_INCLUDE_SPEC) adios_icee_wrap.cxx
-	$(CXX) -shared -o libadios_icee.so adios_icee_wrap.o adios_icee.o filelock.o icee_cmdline.o $(TCL_LIB_SPEC) $(LIBS)
+	$(VT_CXX) -c -fPIC $(TCL_INCLUDE_SPEC) adios_icee_wrap.cxx
+	$(VT_CXX) -shared -o libadios_icee.so adios_icee_wrap.o adios_icee.o filelock.o icee_cmdline.o $(TCL_LIB_SPEC) $(LIBS)
 
 ggo:
 	gengetopt --input=icee_cmdline.ggo --no-handle-version
 
 clean:
-	rm -f *.o *.*~ adios_write adios_read adios_icee
+	rm -f *.o *.*~ $(EXE)
