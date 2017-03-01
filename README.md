@@ -34,8 +34,9 @@ Running
 ### 0. With files
 
 Let's make sure ```adios_icee``` can write and read through files:
-
+```
 $ mpirun -n 4 adios_icee -w MPI
+```
 
 Check output
 ```
