@@ -136,7 +136,7 @@ E.g.:
 
 ```
 $ ./run-staging.py 
-USAGE: run-dataspaces.py <SERVER_COMMAND> [ : <APP_COMMAND> ]*
+USAGE: run-staging.py <SERVER_COMMAND> [ : <APP_COMMAND> ]*
 ====================
 usage: SERVER_COMMAND [--nserver NSERVER] [--nclient NCLIENT]
                       [--mpicmd MPICMD] [--stdout STDOUT] [--stderr STDERR]
@@ -178,5 +178,4 @@ optional arguments:
                         options for mpi command
   --cwd CWD             work directory
 --------------------
-
 ```
