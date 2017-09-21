@@ -65,7 +65,7 @@ File info:
 
 Then, run reader:
 ```
-$ mpirun -n 4 adios_icee -r BP
+$ mpirun -n 4 adios_icee -c -r BP --nostream
 ```
 
 
@@ -78,28 +78,28 @@ For using DATASPACES and DIMES methods, we need to do
 -. Export information on ```conf``` file
 -. Run writer and reader
 
-```run-dataspaces.py``` is provided as a wrapper.
+```run-staging.py``` is provided as a wrapper.
 
 To test with DATASPACES (or DIMES), run:
 ```
-./run-dataspaces.py -s 1 : \
-                    -n 4 adios_icee -w DATASPACES : \
-                    -n 4 adios_icee -c -r DATASPACES
+./run-staging.py -s 1 : \
+    -n 4 adios_icee -w DATASPACES : \
+    -n 4 adios_icee -c -r DATASPACES
 ```
 
 Notes on Titan:
 
 We need to provide an extra option ```--mpirun=aprun
-```. For more details on options, use ```run-dataspaces.py -h```
+```. For more details on options, use ```run-staging.py -h```
 
 Also, we need at least 3 nodes to run this example.
 
 ### 2. FlexPath
 
 ```
-./run-dataspaces.py -s 1 --noserver : \
-                    -n 4 adios_icee -w FLEXPATH : \
-                    -n 4 adios_icee -c -r FLEXPATH
+./run-staging.py --noserver : \
+    -n 4 adios_icee -w FLEXPATH : \
+    -n 4 adios_icee -c -r FLEXPATH
 ```
 
 Checking
@@ -119,3 +119,64 @@ You can see the output from the reader something like:
 In this specific example, the last values (marked as ```^^^^^^```)
 should be multiple of 1 (more precisely, it should be rank + timesteps + 1)
 
+Troubleshooting
+---------------
+
+### 1. Running on Titan
+
+Need to use "--mpicmd" option to specify to use "aprun" laucher. 
+E.g.:
+```
+./run-staging.py --noserver -mpicmd aprun : \
+    -n 4 adios_icee -w FLEXPATH : \
+    -n 4 adios_icee -c -r FLEXPATH
+```
+
+### run-staging command
+
+```
+$ ./run-staging.py 
+USAGE: run-dataspaces.py <SERVER_COMMAND> [ : <APP_COMMAND> ]*
+====================
+usage: SERVER_COMMAND [--nserver NSERVER] [--nclient NCLIENT]
+                      [--mpicmd MPICMD] [--stdout STDOUT] [--stderr STDERR]
+                      [--oe OE] [--dryrun] [--noserver] [--sleep SLEEP]
+                      [--serial]
+
+optional arguments:
+  --nserver NSERVER, -s NSERVER
+                        num. of servers
+  --nclient NCLIENT, -c NCLIENT
+                        num. of clients (will overwrite estimated number)
+  --mpicmd MPICMD       mpi command
+  --stdout STDOUT, -o STDOUT
+                        stdout
+  --stderr STDERR, -e STDERR
+                        stderr
+  --oe OE               merging stdout and stderr
+  --dryrun              dryrun
+  --noserver            no server
+  --sleep SLEEP         sleep time between executions
+  --serial              serial execution
+--------------------
+usage: APP_COMMAND [--np NP] [--stdout STDOUT] [--stderr STDERR] [--oe OE]
+                   [--nompi] [--opt [OPT [OPT ...]]] [--cwd CWD]
+                   ...
+
+positional arguments:
+  CMDS                  app commands
+
+optional arguments:
+  --np NP, -n NP        num. of processes
+  --stdout STDOUT, -o STDOUT
+                        stdout
+  --stderr STDERR, -e STDERR
+                        stderr
+  --oe OE               merging stdout and stderr
+  --nompi               no mpi
+  --opt [OPT [OPT ...]]
+                        options for mpi command
+  --cwd CWD             work directory
+--------------------
+
+```
