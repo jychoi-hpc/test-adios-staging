@@ -127,7 +127,7 @@ Troubleshooting
 Need to use "--mpicmd" option to specify to use "aprun" laucher. 
 E.g.:
 ```
-./run-staging.py --noserver -mpicmd aprun : \
+./run-staging.py --noserver --mpicmd aprun : \
     -n 4 adios_icee -w FLEXPATH : \
     -n 4 adios_icee -c -r FLEXPATH
 ```
