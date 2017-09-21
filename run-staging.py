@@ -4,13 +4,13 @@
 This is a wrapper command for running dataspaces_server with multiple applications.
 
 The general form of this comand is as follows:
-$ run-dataspaces.py SERVER_COMMAND [ : APPLICATION_COMMAND ] *
+$ run-staging.py SERVER_COMMAND [ : APPLICATION_COMMAND ] *
 
 More details of options will be printed with '-h' option:
-$ run-dataspaces.py -h
+$ run-staging.py -h
 
 For the most recent code, please check out here:
-https://github.com/jychoi-hpc/run-dataspaces
+https://github.com/jychoi-hpc/run-staging
 '''
 
 import sys
@@ -51,7 +51,7 @@ def getstds(args):
 def main():
     logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
     def usage():
-        print ('USAGE: run-dataspaces.py <SERVER_COMMAND> [ : <APP_COMMAND> ]*')
+        print ('USAGE: run-staging.py <SERVER_COMMAND> [ : <APP_COMMAND> ]*')
         print ('====================')
         parser_svr.print_help()
         print ('--------------------')
